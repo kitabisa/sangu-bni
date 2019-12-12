@@ -23,12 +23,32 @@ func (gateway *CoreGateway) Call(method, path string, header map[string]string, 
 }
 
 // CreateBilling function to call Create Invoice/Billing
-func (gateway *CoreGateway) CreateBilling(br BillingRequest) (resp BillingResponse, respError ResponseError, err error) {
+func (gateway *CoreGateway) CreateBilling(br BillingCreateRequest) (resp BillingCreateResponse, respError ResponseError, err error) {
+	respError, err = gateway.processing(br, &resp.BillingCreateData)
+	if err == nil && respError.Status == "" {
+		resp.Status = StatusSuccess
+	}
+
+	return
+}
+
+// InquiryBilling function to call Inquiry Invoice/Billing
+func (gateway *CoreGateway) InquiryBilling(br BillingDetailRequest) (resp BillingDetailResponse, respError ResponseError, err error) {
+	respError, err = gateway.processing(br, &resp.BillingDetailData)
+	if err == nil && respError.Status == "" {
+		resp.Status = StatusSuccess
+	}
+
+	return
+}
+
+// general processing request/response to bni api
+func (gateway *CoreGateway) processing(request interface{}, respData interface{}) (respError ResponseError, err error) {
 	headers := map[string]string{
 		"Content-Type": "application/json",
 	}
 
-	brByte, err := json.Marshal(br)
+	brByte, err := json.Marshal(request)
 	if err != nil {
 		return
 	}
@@ -59,13 +79,7 @@ func (gateway *CoreGateway) CreateBilling(br BillingRequest) (resp BillingRespon
 			return
 		}
 
-		var dataResp BillingData
-
-		json.Unmarshal([]byte(dataRespStr), &dataResp)
-		resp = BillingResponse{
-			res["status"].(string),
-			dataResp,
-		}
+		json.Unmarshal([]byte(dataRespStr), &respData)
 	} else {
 		respError.Status = res["status"].(string)
 		respError.Message = res["message"].(string)
