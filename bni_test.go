@@ -2,10 +2,12 @@ package bni
 
 import (
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"testing"
 	"time"
 
+	"github.com/BurntSushi/toml"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
@@ -15,15 +17,33 @@ type BniTestSuite struct {
 	client Client
 }
 
+type credentials struct {
+	BaseUrl      string
+	ClientId     string
+	ClientSecret string
+}
+
 func TestBniTestSuite(t *testing.T) {
 	suite.Run(t, new(BniTestSuite))
 }
 
 func (b *BniTestSuite) SetupSuite() {
+	theToml, err := ioutil.ReadFile("credentials.toml")
+	if err != nil {
+		b.T().Log(err)
+		b.T().FailNow()
+	}
+
+	var cred credentials
+	if _, err := toml.Decode(string(theToml), &cred); err != nil {
+		b.T().Log(err)
+		b.T().FailNow()
+	}
+
 	b.client = NewClient()
-	b.client.BaseURL = "https://bni-staging-hostname"
-	b.client.ClientID = "bni-staging-client-id"
-	b.client.ClientSecret = "bni-staging-client-secret"
+	b.client.BaseURL = cred.BaseUrl
+	b.client.ClientID = cred.ClientId
+	b.client.ClientSecret = cred.ClientSecret
 }
 
 func (b *BniTestSuite) TestCreateBillingSuccess() {
@@ -36,7 +56,7 @@ func (b *BniTestSuite) TestCreateBillingSuccess() {
 
 	br := BillingRequest{
 		Type:         "createbilling",
-		ClientID:     "bni-staging-client-id",
+		ClientID:     b.client.ClientID,
 		TrxID:        fmt.Sprint(r1.Intn(1000000)),
 		TrxAmount:    "10000",
 		BillingType:  BillTypeFixed,
@@ -57,7 +77,7 @@ func (b *BniTestSuite) TestCreateBillingFail() {
 
 	br := BillingRequest{
 		Type:         "createbilling",
-		ClientID:     "bni-staging-client-id",
+		ClientID:     b.client.ClientID,
 		TrxID:        "1",
 		TrxAmount:    "10000",
 		BillingType:  BillTypeFixed,
