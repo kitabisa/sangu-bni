@@ -24,69 +24,77 @@ const (
 // status code
 const (
 	// StatusSuccess Success
-	StatusSuccess = "000" 
-	
+	StatusSuccess = "000"
+
 	// StatusInvalidParameter Incomplete/invalid Parameter(s).
-	StatusInvalidParameter = "001" 
-	
+	StatusInvalidParameter = "001"
+
 	// StatusNotAllowed IP address not allowed or wrong Client ID.
-	StatusNotAllowed = "002" 
-	
+	StatusNotAllowed = "002"
+
 	// StatusSvcNotFound Service not found.
-	StatusSvcNotFound = "004" 
-	
+	StatusSvcNotFound = "004"
+
 	// StatusSvcNotDefined Service not defined.
-	StatusSvcNotDefined = "005" 
-	
+	StatusSvcNotDefined = "005"
+
 	// StatusInvalidVANo Invalid VA Number.
-	StatusInvalidVANo = "006" 
-	
+	StatusInvalidVANo = "006"
+
 	// StatusTechFailure Technical Failure.
-	StatusTechFailure = "008" 
-	
+	StatusTechFailure = "008"
+
 	// StatusUnexpectedErr Unexpected Error.
-	StatusUnexpectedErr = "009" 
-	
+	StatusUnexpectedErr = "009"
+
 	// StatusRTO Request Timeout.
-	StatusRTO = "010" 
-	
+	StatusRTO = "010"
+
 	// StatusBillNotMatch Billing type does not match billing amount.
-	StatusBillNotMatch = "011" 
-	
+	StatusBillNotMatch = "011"
+
 	// StatusInvalidExpireTime Invalid expiry date/time.
-	StatusInvalidExpireTime = "012" 
-	
+	StatusInvalidExpireTime = "012"
+
 	// StatusInvalidAmount IDR currency cannot have billing amount with decimal fraction.
-	StatusInvalidAmount = "013" 
-	
+	StatusInvalidAmount = "013"
+
 	// StatusBillingNotFound Billing not found.
-	StatusBillingNotFound = "101" 
-	
+	StatusBillingNotFound = "101"
+
 	// StatusVAInUse VA Number is in use.
-	StatusVAInUse = "102" 
-	
+	StatusVAInUse = "102"
+
 	// StatusExpired Billing has been expired.
-	StatusExpired = "103" 
-	
+	StatusExpired = "103"
+
 	// StatusDuplicate Duplicate Billing ID.
-	StatusDuplicate = "105" 
-	
+	StatusDuplicate = "105"
+
 	// StatusInvalidAmountIsFixed Amount can not be changed.
-	StatusInvalidAmountIsFixed = "107" 
-	
+	StatusInvalidAmountIsFixed = "107"
+
 	// StatusFailSendSMS Failed to send SMS Payment.
-	StatusFailSendSMS = "200" 
-	
+	StatusFailSendSMS = "200"
+
 	// StatusSMSOnlyForFixed SMS Payment can only be used with Fixed Payment.
-	StatusSMSOnlyForFixed = "201" 
-	
+	StatusSMSOnlyForFixed = "201"
+
 	// StatusSystemOffline System is temporarily offline.
-	StatusSystemOffline = "997" 
-	
+	StatusSystemOffline = "997"
+
 	// StatusContentTypeNotSet "Content-Type" header not defined as it should be.
-	StatusContentTypeNotSet = "998" 
-	
+	StatusContentTypeNotSet = "998"
+
 	// StatusInternalErr Internal Error.
-	StatusInternalErr = "999" 
-	
+	StatusInternalErr = "999"
+)
+
+// types of request name
+const (
+	// TypeCreate for create billing
+	TypeCreate = "createbilling"
+
+	// TypeInquiry for inquiry billing
+	TypeInquiry = "inquirybilling"
 )
