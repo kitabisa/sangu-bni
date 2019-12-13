@@ -76,3 +76,25 @@ type BillingInquiryData struct {
 	BillingType                string `json:"Billing_type"`
 	DatetimePaymentIso8601     string `json:"datetime_payment_iso8601"`
 }
+
+type BillingCallbackRequest struct {
+	ClientID string `json:"client_id"`
+	Data     string `json:"data"`
+}
+
+// BillingCallbackData callback data
+type BillingCallbackData struct {
+	VirtualAccount          string `json:"virtual_account"`
+	CustomerName            string `json:"customer_name"`
+	TrxId                   string `json:"trx_id"`
+	TrxAmount               string `json:"trx_amount"`
+	PaymentAmount           string `json:"payment_amount"`
+	CumulativePaymentAmount string `json:"cumulative_payment_amount"`
+	PaymentNtb              string `json:"payment_ntb"`
+	DatetimePaymentIso8601  string `json:"datetime_payment_iso8601"`
+}
+
+// BillingNotifyResponse callback response
+type BillingCallbackSuccessResponse struct {
+	Status string `json:"status"`
+}

@@ -106,3 +106,14 @@ func (gateway *CoreGateway) processing(request interface{}, respData interface{}
 
 	return
 }
+
+func (gateway *CoreGateway) DecryptCallback(r BillingCallbackRequest) (resp BillingCallbackData, err error) {
+	dataRespStr, errDecrypt := Decrypt(r.Data, gateway.Client.ClientID, gateway.Client.ClientSecret)
+	if errDecrypt != nil {
+		err = errDecrypt
+		return
+	}
+
+	json.Unmarshal([]byte(dataRespStr), &resp)
+	return
+}
