@@ -61,7 +61,7 @@ func (gateway *CoreGateway) UpdateBilling(br BillingRequest) (resp BillingCreate
 	return
 }
 
-// general processing request/response to bni api
+// processing general processing request/response to bni api
 func (gateway *CoreGateway) processing(request interface{}, respData interface{}) (respError ResponseError, err error) {
 	headers := map[string]string{
 		"Content-Type": "application/json",
