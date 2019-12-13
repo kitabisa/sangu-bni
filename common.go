@@ -97,4 +97,7 @@ const (
 
 	// TypeInquiry for inquiry billing
 	TypeInquiry = "inquirybilling"
+
+	//TypeUpdate for update billing
+	TypeUpdate = "updatebilling"
 )
