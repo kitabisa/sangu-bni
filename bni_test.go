@@ -57,10 +57,11 @@ func (b *BniTestSuite) TestCreateBillingSuccess() {
 
 	br := BillingCreateRequest{
 		BillingRequest: BillingRequest{
-			ClientID:     b.client.ClientID,
-			TrxID:        fmt.Sprint(r1.Intn(1000000)),
-			TrxAmount:    "10000",
-			CustomerName: "fulan",
+			ClientID:        b.client.ClientID,
+			TrxID:           fmt.Sprint(r1.Intn(1000000)),
+			TrxAmount:       "10000",
+			CustomerName:    "fulan",
+			DatetimeExpired: time.Now().UTC().Add(30 * time.Duration(time.Minute)).Format(DateTimeExpiredFormat),
 		},
 		BillingType: BillTypeFixed,
 	}
@@ -72,7 +73,33 @@ func (b *BniTestSuite) TestCreateBillingSuccess() {
 	assert.Equal(b.T(), nil, err)
 }
 
-func (b *BniTestSuite) TestCreateBillingFail() {
+func (b *BniTestSuite) TestCreateBillingInvalidParam() {
+	core := CoreGateway{
+		Client: b.client,
+	}
+
+	// invalid param
+	s1 := rand.NewSource(time.Now().UnixNano())
+	r1 := rand.New(s1)
+	br := BillingCreateRequest{
+		BillingRequest: BillingRequest{
+			ClientID:     b.client.ClientID,
+			TrxID:        fmt.Sprint(r1.Intn(1000000)),
+			TrxAmount:    "asdasd",
+			CustomerName: "fulan",
+		},
+		BillingType: BillTypeFixed,
+	}
+
+	resp, respError, err := core.CreateBilling(br)
+	assert.Equal(b.T(), BillingCreateResponse{}, resp)
+	assert.Equal(b.T(), respError.Status, StatusInvalidParameter)
+	assert.NotEqual(b.T(), StatusSuccess, respError.Status)
+	assert.NotEqual(b.T(), ResponseError{}, respError)
+	assert.Equal(b.T(), nil, err)
+}
+
+func (b *BniTestSuite) TestCreateBillingFailDuplicate() {
 	core := CoreGateway{
 		Client: b.client,
 	}
@@ -87,11 +114,12 @@ func (b *BniTestSuite) TestCreateBillingFail() {
 		BillingType: BillTypeFixed,
 	}
 
-	// run it twice to make it sure duplicate
+	// fail duplicate, run it twice
 	_, _, _ = core.CreateBilling(br)
 	resp, respError, err := core.CreateBilling(br)
 
 	assert.Equal(b.T(), BillingCreateResponse{}, resp)
+	assert.Equal(b.T(), respError.Status, StatusDuplicate)
 	assert.NotEqual(b.T(), StatusSuccess, respError.Status)
 	assert.NotEqual(b.T(), ResponseError{}, respError)
 	assert.Equal(b.T(), nil, err)
