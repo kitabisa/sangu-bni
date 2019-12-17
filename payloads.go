@@ -19,11 +19,11 @@ type BillingRequest struct {
 	TrxID           string `json:"trx_id" valid:"required"`
 	TrxAmount       string `json:"trx_amount" valid:"required"`
 	CustomerName    string `json:"customer_name" valid:"required"`
-	CustomerEmail   string `json:"customer_email"`
-	CustomerPhone   string `json:"customer_phone"`
-	VirtualAccount  string `json:"virtual_account"`
-	DatetimeExpired string `json:"datetime_expired"`
-	Description     string `json:"description"`
+	CustomerEmail   string `json:"customer_email,omitempty"`
+	CustomerPhone   string `json:"customer_phone,omitempty"`
+	VirtualAccount  string `json:"virtual_account,omitempty"`
+	DatetimeExpired string `json:"datetime_expired,omitempty"`
+	Description     string `json:"description,omitempty"`
 }
 
 // BillingCreateRequest data for create invoice/billing request
