@@ -24,6 +24,9 @@ func (gateway *CoreGateway) Call(method, path string, header map[string]string, 
 
 // CreateBilling function to call Create Invoice/Billing
 func (gateway *CoreGateway) CreateBilling(br BillingCreateRequest) (resp BillingCreateResponse, respError ResponseError, err error) {
+	// set type to create
+	br.TrxType = TypeCreate
+
 	respError, err = gateway.processing(br, &resp.BillingCreateData)
 	if err == nil && respError.Status == "" {
 		resp.Status = StatusSuccess
@@ -33,8 +36,11 @@ func (gateway *CoreGateway) CreateBilling(br BillingCreateRequest) (resp Billing
 }
 
 // InquiryBilling function to call Inquiry Invoice/Billing
-func (gateway *CoreGateway) InquiryBilling(br BillingDetailRequest) (resp BillingDetailResponse, respError ResponseError, err error) {
-	respError, err = gateway.processing(br, &resp.BillingDetailData)
+func (gateway *CoreGateway) InquiryBilling(br BillingInquiryRequest) (resp BillingInquiryResponse, respError ResponseError, err error) {
+	// set type to inquiry
+	br.TrxType = TypeInquiry
+
+	respError, err = gateway.processing(br, &resp.BillingInquiryData)
 	if err == nil && respError.Status == "" {
 		resp.Status = StatusSuccess
 	}
@@ -42,7 +48,20 @@ func (gateway *CoreGateway) InquiryBilling(br BillingDetailRequest) (resp Billin
 	return
 }
 
-// general processing request/response to bni api
+// UpdateBilling function to call Update Transaction
+func (gateway *CoreGateway) UpdateBilling(br BillingRequest) (resp BillingCreateResponse, respError ResponseError, err error) {
+	// set type to update
+	br.TrxType = TypeUpdate
+
+	respError, err = gateway.processing(br, &resp.BillingCreateData)
+	if err == nil && respError.Status == "" {
+		resp.Status = StatusSuccess
+	}
+
+	return
+}
+
+// processing general processing request/response to bni api
 func (gateway *CoreGateway) processing(request interface{}, respData interface{}) (respError ResponseError, err error) {
 	headers := map[string]string{
 		"Content-Type": "application/json",
@@ -85,5 +104,16 @@ func (gateway *CoreGateway) processing(request interface{}, respData interface{}
 		respError.Message = res["message"].(string)
 	}
 
+	return
+}
+
+func (gateway *CoreGateway) DecryptCallback(r BillingCallbackRequest) (resp BillingCallbackData, err error) {
+	dataRespStr, errDecrypt := Decrypt(r.Data, gateway.Client.ClientID, gateway.Client.ClientSecret)
+	if errDecrypt != nil {
+		err = errDecrypt
+		return
+	}
+
+	json.Unmarshal([]byte(dataRespStr), &resp)
 	return
 }

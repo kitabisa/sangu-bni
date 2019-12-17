@@ -12,48 +12,53 @@ type ResponseError struct {
 	Message string `json:"message"`
 }
 
-// BillingRequest data for create invoice/billing request
-type BillingCreateRequest struct {
-	Type            string `json:"type" valid:"required"`
+// BillingRequest billing data that used for request on create and update
+type BillingRequest struct {
+	TrxType         string `json:"type" valid:"required"`
 	ClientID        string `json:"client_id" valid:"required"`
 	TrxID           string `json:"trx_id" valid:"required"`
 	TrxAmount       string `json:"trx_amount" valid:"required"`
-	BillingType     string `json:"billing_type" valid:"required"`
 	CustomerName    string `json:"customer_name" valid:"required"`
-	CustomerEmail   string `json:"customer_email"`
-	CustomerPhone   string `json:"customer_phone"`
-	VirtualAccount  string `json:"virtual_account"`
-	DatetimeExpired string `json:"datetime_expired"`
-	Description     string `json:"description"`
+	CustomerEmail   string `json:"customer_email,omitempty"`
+	CustomerPhone   string `json:"customer_phone,omitempty"`
+	VirtualAccount  string `json:"virtual_account,omitempty"`
+	DatetimeExpired string `json:"datetime_expired,omitempty"`
+	Description     string `json:"description,omitempty"`
 }
 
-// BillingResponse create invoice/billing response to client
+// BillingCreateRequest data for create invoice/billing request
+type BillingCreateRequest struct {
+	BillingRequest
+	BillingType string `json:"billing_type" valid:"required"`
+}
+
+// BillingCreateResponse create invoice/billing response to client
 type BillingCreateResponse struct {
 	Status string `json:"status"`
 	BillingCreateData
 }
 
-// BillingData data for create invoice/billing response
+// BillingCreateData data for create invoice/billing response
 type BillingCreateData struct {
 	TrxID          string `json:"trx_id"`
 	VirtualAccount string `json:"virtual_account"`
 }
 
-// BillingDetail request payload for inquiry invoice/billing response
-type BillingDetailRequest struct {
-	Type     string `json:"type"`
+// BillingInquiryRequest request payload for inquiry invoice/billing response
+type BillingInquiryRequest struct {
+	TrxType  string `json:"type"`
 	ClientID string `json:"client_id"`
 	TrxID    string `json:"trx_id"`
 }
 
-// BillingDetailResponse response data for inquiry invoice/billing response
-type BillingDetailResponse struct {
+// BillingInquiryResponse response data for inquiry invoice/billing response
+type BillingInquiryResponse struct {
 	Status string `json:"status"`
-	BillingDetailData
+	BillingInquiryData
 }
 
-// BillingDetailData detail of billing data
-type BillingDetailData struct {
+// BillingInquiryData detail of billing data
+type BillingInquiryData struct {
 	ClientID                   string `json:"client_id"`
 	TrxID                      string `json:"trx_id"`
 	TrxAmount                  string `json:"trx_amount"`
@@ -70,4 +75,26 @@ type BillingDetailData struct {
 	PaymentNtb                 string `json:"payment_ntb"`
 	BillingType                string `json:"Billing_type"`
 	DatetimePaymentIso8601     string `json:"datetime_payment_iso8601"`
+}
+
+type BillingCallbackRequest struct {
+	ClientID string `json:"client_id"`
+	Data     string `json:"data"`
+}
+
+// BillingCallbackData callback data
+type BillingCallbackData struct {
+	VirtualAccount          string `json:"virtual_account"`
+	CustomerName            string `json:"customer_name"`
+	TrxId                   string `json:"trx_id"`
+	TrxAmount               string `json:"trx_amount"`
+	PaymentAmount           string `json:"payment_amount"`
+	CumulativePaymentAmount string `json:"cumulative_payment_amount"`
+	PaymentNtb              string `json:"payment_ntb"`
+	DatetimePaymentIso8601  string `json:"datetime_payment_iso8601"`
+}
+
+// BillingNotifyResponse callback response
+type BillingCallbackSuccessResponse struct {
+	Status string `json:"status"`
 }

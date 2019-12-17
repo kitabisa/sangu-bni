@@ -97,4 +97,12 @@ const (
 
 	// TypeInquiry for inquiry billing
 	TypeInquiry = "inquirybilling"
+
+	//TypeUpdate for update billing
+	TypeUpdate = "updatebilling"
+)
+
+// others
+const (
+	DateTimeExpiredFormat = "2006-01-02T15:04:05+07:00"
 )
