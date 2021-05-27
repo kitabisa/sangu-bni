@@ -25,9 +25,6 @@ func Decrypt(encrypted string, clientID string, secretKey string) (string, error
 	if len(lst) < 2 {
 		return "", errors.New("bniEnc: parsing error, wrong cid or sck or invalid data")
 	}
-	if tsDiff(reverse(lst[0])) == false {
-		return "", errors.New("bniEnc: data has been expired")
-	}
 	return lst[1], nil
 }
 
