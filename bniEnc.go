@@ -5,8 +5,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"math"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -26,14 +24,6 @@ func Decrypt(encrypted string, clientID string, secretKey string) (string, error
 		return "", errors.New("bniEnc: parsing error, wrong cid or sck or invalid data")
 	}
 	return lst[1], nil
-}
-
-func tsDiff(ts string) bool {
-	_ts, err := strconv.ParseInt(ts, 10, 64)
-	if err != nil {
-		return false
-	}
-	return math.Abs(float64(_ts-time.Now().Unix())) <= timeDiffLimit
 }
 
 func doubleEncrypt(str string, cid string, sck string) string {
