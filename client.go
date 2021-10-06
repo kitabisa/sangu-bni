@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gojektech/heimdall"
 	"github.com/gojektech/heimdall/httpclient"
+	"moul.io/http2curl"
 )
 
 // Client BNI Client data
@@ -20,7 +19,7 @@ type Client struct {
 	ClientID     string
 	ClientSecret string
 	LogLevel     int
-	Logger       *log.Logger
+	Logger       Logger
 	HTTPOption   HTTPOption
 }
 
@@ -34,6 +33,13 @@ type HTTPOption struct {
 
 // NewClient : this function will always be called when the library is in use
 func NewClient() Client {
+	logOption := LogOption{
+		Format:          "text",
+		Level:           "info",
+		TimestampFormat: "2006-01-02T15:04:05-0700",
+		CallerToggle:    false,
+	}
+
 	// default HTTP Option
 	httpOption := HTTPOption{
 		Timeout:           10 * time.Second,
@@ -42,6 +48,8 @@ func NewClient() Client {
 		RetryCount:        3,
 	}
 
+	logger := *NewLogger(logOption)
+
 	return Client{
 		// LogLevel is the logging level used by the BNI library
 		// 0: No logging
@@ -49,7 +57,7 @@ func NewClient() Client {
 		// 2: Errors + informational (default)
 		// 3: Errors + informational + debug
 		LogLevel:   2,
-		Logger:     log.New(os.Stderr, "", log.LstdFlags),
+		Logger:     logger,
 		HTTPOption: httpOption,
 	}
 }
@@ -68,14 +76,9 @@ func getHTTPClient(opt HTTPOption) *httpclient.Client {
 
 // NewRequest : send new request
 func (c *Client) NewRequest(method string, fullPath string, headers map[string]string, body io.Reader) (*http.Request, error) {
-	logLevel := c.LogLevel
-	logger := c.Logger
-
 	req, err := http.NewRequest(method, fullPath, body)
 	if err != nil {
-		if logLevel > 0 {
-			logger.Println("Request creation failed: ", err)
-		}
+		c.Logger.Error("Request creation failed: %v", err)
 		return nil, err
 	}
 
@@ -90,46 +93,28 @@ func (c *Client) NewRequest(method string, fullPath string, headers map[string]s
 
 // ExecuteRequest : execute request
 func (c *Client) ExecuteRequest(req *http.Request, v *map[string]interface{}) error {
-	logLevel := c.LogLevel
-	logger := c.Logger
 
-	if logLevel > 1 {
-		logger.Println("Request ", req.Method, ": ", req.URL.Host, req.URL.Path)
-	}
-
+	command, _ := http2curl.GetCurlCommand(req)
 	start := time.Now()
+	c.Logger.Info("Start requesting: %v ", req.URL)
 	res, err := getHTTPClient(c.HTTPOption).Do(req)
 	if err != nil {
-		if logLevel > 0 {
-			logger.Println("Cannot send request: ", err)
-		}
+		c.Logger.Error("Request failed. Error : %v , Curl Request : %v", err, command)
 		return err
 	}
 	defer res.Body.Close()
 
-	if logLevel > 2 {
-		logger.Println("Completed in ", time.Since(start))
-	}
-
-	if err != nil {
-		if logLevel > 0 {
-			logger.Println("Request failed: ", err)
-		}
-		return err
-	}
+	c.Logger.Info("Completed in %v", time.Since(start))
+	c.Logger.Info("Curl Request: %v ", command)
 
 	respBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		if logLevel > 0 {
-			logger.Println("Cannot read response body: ", err)
-		}
+		c.Logger.Error("Cannot read response body: %v ", err)
 		return err
 	}
 
-	if logLevel > 2 {
-		logger.Println("BNI HTTP status response: ", res.StatusCode)
-		logger.Println("BNI body response: ", string(respBody))
-	}
+	c.Logger.Info("BNI HTTP status response : %d", res.StatusCode)
+	c.Logger.Info("BNI response body : %s", string(respBody))
 
 	if res.StatusCode != 200 {
 		err = fmt.Errorf("%d: %s", res.StatusCode, http.StatusText(res.StatusCode))
